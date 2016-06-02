@@ -1,0 +1,39 @@
+﻿@section scripts {
+    @Scripts.Render("~/bundles/app")
+}
+
+<p></p>
+<div class="row">
+    <div class="col-md-12" >
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">Books Loaned Out</h2>
+            </div>
+            <div class="panel-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <td>Book</td>
+                        <td>Name</td>
+                        <td>Surname</td>
+                        <td>Date Book Loaned</td>
+                        <td>Comments</td>
+                        <td></td>
+                    </tr>
+                    </thead>
+                    <tbody data-bind='foreach: loans'>
+                        <tr >
+                            <td data-bind="text: Book.Title"></td>
+                            <td data-bind="text: Name"></td>
+                            <td data-bind="text: Surname"></td>
+                            <td data-bind="text: moment(DateLoaned).format('LL')"></td>
+                            <td data-bind="text: Comments"></td>
+                            <td><a href="#" data-bind="click: $parent.returnBook">Return Book</a></td>
+                        </tr> 
+                </table>
+            </div>
+        </div>
+        <div class="alert alert-danger" data-bind="visible: error"><p data-bind="text: error"></p></div>
+        <div class="alert alert-success" data-bind="visible: message"><p data-bind="text: message"></p></div>
+    </div>
+</div>

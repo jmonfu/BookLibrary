@@ -110,7 +110,16 @@ namespace HomeBookLibrary.Controllers
                 return NotFound();
             }
 
-            db.Loans.Remove(loan);
+            //set the book back to available
+            var book = db.Books.FirstOrDefault(x => x.Id == loan.BookId);
+            if (book != null)
+            {
+                book.IsAvailable = true;
+
+                db.Loans.Remove(loan);
+                db.Entry(book).State = EntityState.Modified;
+            }
+
             db.SaveChanges();
 
             var dto = AutoMapper.Mapper.Map<LoanDTO>(loan);

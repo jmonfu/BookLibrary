@@ -18,6 +18,13 @@
     self.bookDetail = ko.observable();
     self.filteredBooks = ko.observable();
     self.loanedBook = ko.observable();
+    self.showing = ko.observable();
+    self.message = ko.observable();
+    self.loans = ko.observable();
+
+    self.show = function (panel) {
+        return (function () { self.showing(panel); });
+    }
 
     self.newLoanBook = {
         Book : self.bookDetail,
@@ -41,6 +48,13 @@
         });
     }
 
+    function getAllBooks() {
+        ajaxHelper(booksUri, 'GET').done(function (data) {
+            self.filteredBooks(data);
+            self.showing('books');
+        });
+    }
+
     function getAllAuthors() {
         ajaxHelper(authorsUri, 'GET').done(function (data) {
             self.authors(data);
@@ -52,6 +66,14 @@
             self.genres(data);
         });
     }
+
+    function getAllLoans() {
+        ajaxHelper(loansUri, 'GET').done(function (data) {
+            console.log(data);
+            self.loans(data);
+        });
+    }
+
 
     function formatUrl(selected) {
         var returnString = "";
@@ -75,6 +97,8 @@
 
         ajaxHelper(booksUri + queryString, 'GET').done(function (data) {
             self.filteredBooks(data);
+            self.showing('books');
+            self.message('');
         });
 
     };
@@ -82,6 +106,8 @@
     self.getBookDetail = function (item) {
         ajaxHelper(booksUri + item.Id, 'GET').done(function (data) {
             self.bookDetail(data);
+            self.showing('bookDetails');
+            self.message('');
         });
     }
 
@@ -89,6 +115,8 @@
         ajaxHelper(booksUri + item.Id, 'GET').done(function (data) {
             self.loanedBook = data;
             self.bookDetail(data);
+            self.showing('Loanees');
+            self.message('');
         });
     }
 
@@ -104,11 +132,23 @@
 
         ajaxHelper(loansUri, 'POST', loannee).done(function (item) {
             self.books.push(item);
+            self.message("Loan Book Updated!");
+            //self.filteredBooks();
+            getAllBooks();
         });
     }
 
+    self.returnBook = function (item) {
+        ajaxHelper(loansUri + item.Id, 'DELETE').done(function (data) {
+            getAllLoans();
+            self.message('Book Available again!');
+        });
+    }
+
+    getAllBooks();
     getAllAuthors();
     getAllGenres();
+    getAllLoans();
 };
 
 ko.applyBindings(new ViewModel());

@@ -14,5 +14,12 @@ namespace HomeBookLibrary.Controllers
 
             return View();
         }
+
+        public ActionResult Loans()
+        {
+            ViewBag.Title = "Loans Page";
+
+            return View();
+        }
     }
 }
