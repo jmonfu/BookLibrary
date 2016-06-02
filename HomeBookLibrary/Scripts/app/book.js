@@ -3,6 +3,7 @@
     var booksUri = '/api/books/';
     var authorsUri = '/api/authors/';
     var genresUri = '/api/genres/';
+    var loansUri = '/api/loans/';
     var currentDate = (new Date()).toISOString().split('T')[0];
 
     self.books = ko.observableArray();
@@ -16,11 +17,14 @@
     self.selectedIsbn = ko.observable();
     self.bookDetail = ko.observable();
     self.filteredBooks = ko.observable();
+    self.loanedBook = ko.observable();
 
     self.newLoanBook = {
+        Book : self.bookDetail,
         Title: ko.observable(),
-        CurrentDate: ko.observable(currentDate),
+        DateLoaned: ko.observable(moment(currentDate).format('DD-MM-YYYY')),
         Name: ko.observable(),
+        Surname: ko.observable(),
         Comments: ko.observable()
     }
 
@@ -83,20 +87,22 @@
 
     self.loanBook = function (item) {
         ajaxHelper(booksUri + item.Id, 'GET').done(function (data) {
-            console.log(data);
+            self.loanedBook = data;
             self.bookDetail(data);
         });
     }
 
     self.loanBookSubmit = function (formElement) {
-        var book = {
-            BookId: self.newLoanBook.Book().Id,
-            Date: self.newLoanBook.rawDate(),
+        var loannee = {
+            BookId: this.loanedBook.Id,
+            DateLoaned: moment(self.newLoanBook.DateLoaned()).format('DD-MM-YYYY'),
             Name: self.newLoanBook.Name(),
+            Surname: self.newLoanBook.Surname(),
             Comments: self.newLoanBook.Comments()
         };
 
-        ajaxHelper(booksUri, 'POST', book).done(function (item) {
+
+        ajaxHelper(loansUri, 'POST', loannee).done(function (item) {
             self.books.push(item);
         });
     }

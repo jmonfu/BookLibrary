@@ -83,7 +83,16 @@ namespace HomeBookLibrary.Controllers
                 return BadRequest(ModelState);
             }
 
-            db.Loans.Add(loan);
+            //also update the isAvailable parameter inside the book table
+            var book = db.Books.FirstOrDefault(x => x.Id == loan.BookId);
+            if (book != null)
+            {
+                book.IsAvailable = false;
+
+                db.Loans.Add(loan);
+                db.Entry(book).State = EntityState.Modified;
+            }
+
             db.SaveChanges();
 
             var dto = AutoMapper.Mapper.Map<LoanDTO>(loan);

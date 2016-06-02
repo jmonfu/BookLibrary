@@ -11,6 +11,7 @@ namespace HomeBookLibrary.Models.DTO
         public string Name { get; set; }
         public string Surname { get; set; }
         public DateTime DateLoaned { get; set; }
+        public string Comments { get; set; }
 
         public int BookId { get; set; }
         public Book Book { get; set; }

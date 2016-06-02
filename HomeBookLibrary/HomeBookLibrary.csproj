@@ -269,6 +269,10 @@
     <Compile Include="Migrations\201605311846320_Initial.Designer.cs">
       <DependentUpon>201605311846320_Initial.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201606020756295_Added_Comments_To_Loan_Table.cs" />
+    <Compile Include="Migrations\201606020756295_Added_Comments_To_Loan_Table.Designer.cs">
+      <DependentUpon>201606020756295_Added_Comments_To_Loan_Table.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -334,6 +338,10 @@
     <Content Include="Scripts\knockout-3.4.0.debug.js" />
     <Content Include="Scripts\knockout-3.4.0.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\moment-with-locales.js" />
+    <Content Include="Scripts\moment-with-locales.min.js" />
+    <Content Include="Scripts\moment.js" />
+    <Content Include="Scripts\moment.min.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Web.config" />
@@ -366,6 +374,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201605311846320_Initial.resx">
       <DependentUpon>201605311846320_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201606020756295_Added_Comments_To_Loan_Table.resx">
+      <DependentUpon>201606020756295_Added_Comments_To_Loan_Table.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

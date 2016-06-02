@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
+using Microsoft.SqlServer.Server;
 
 namespace HomeBookLibrary.Models
 {
@@ -14,6 +15,7 @@ namespace HomeBookLibrary.Models
         [Required]
         public string Surname { get; set; }
         public DateTime DateLoaned { get; set; }
+        public string Comments { get; set; }
 
         // Foreign Key
         public int BookId { get; set; }
