@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AutoMapper.QueryableExtensions;
 using HomeBookLibrary.Models;
 using HomeBookLibrary.Models.DTO;
 
@@ -21,7 +22,7 @@ namespace HomeBookLibrary.Controllers
         // GET: api/Authors
         public IQueryable<AuthorDTO> GetAuthors()
         {
-            return AutoMapper.Mapper.Map<IQueryable<AuthorDTO>>(db.Authors);
+            return db.Authors.ProjectTo<AuthorDTO>();
         }
 
         // GET: api/Authors/5

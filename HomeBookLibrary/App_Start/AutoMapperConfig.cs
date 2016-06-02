@@ -11,14 +11,22 @@ namespace HomeBookLibrary.App_Start
     {
         public static void RegisterMappings()
         {
-            AutoMapper.Mapper.CreateMap<Author, AuthorDTO>();
+            AutoMapper.Mapper.CreateMap<Author, AuthorDTO>()
+                    .ForMember(dest => dest.AuthorName,
+                    opts => opts.MapFrom(src => src.Name));
+
             AutoMapper.Mapper.CreateMap<Genre, GenreDTO>();
 
-            AutoMapper.Mapper.CreateMap<Book, BookDTO>();
+            AutoMapper.Mapper.CreateMap<Book, BookDTO>()
+                    .ForMember(dest => dest.BookTitle,
+                    opts => opts.MapFrom(src => src.Title));
             AutoMapper.Mapper.CreateMap<Book, BookDTO>()
                 .ForMember(dest => dest.AuthorName,
                     opts => opts.MapFrom(src => src.Author.Name));
 
+            AutoMapper.Mapper.CreateMap<Book, BookDetailDTO>()
+                    .ForMember(dest => dest.BookTitle,
+                    opts => opts.MapFrom(src => src.Title));
             AutoMapper.Mapper.CreateMap<Book, BookDetailDTO>()
                 .ForMember(dest => dest.AuthorName,
                     opts => opts.MapFrom(src => src.Author.Name));

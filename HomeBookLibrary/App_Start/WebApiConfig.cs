@@ -25,6 +25,12 @@ namespace HomeBookLibrary
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+
+            config.Routes.MapHttpRoute(
+                name: "BookFilter",
+                routeTemplate: "api/books/{authorId}/{titleId}/{genreId}/{isbn}",
+                defaults: new { controller = "Books", action = "BookFilter", authorId = RouteParameter.Optional, titleId = RouteParameter.Optional, genreId = RouteParameter.Optional, isbn = RouteParameter.Optional });
+
         }
     }
 }

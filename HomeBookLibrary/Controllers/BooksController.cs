@@ -9,6 +9,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AttributeRouting.Web.Mvc;
+using AutoMapper.QueryableExtensions;
 using HomeBookLibrary.Models;
 using HomeBookLibrary.Models.DTO;
 
@@ -21,14 +23,15 @@ namespace HomeBookLibrary.Controllers
         // GET: api/Books
         public IQueryable<BookDTO> GetBooks()
         {
-            return AutoMapper.Mapper.Map<IQueryable<BookDTO>>(db.Books);
+            return db.Books.ProjectTo<BookDTO>();
         }
+
 
         // GET: api/Books/5
         [ResponseType(typeof(BookDetailDTO))]
         public async Task<IHttpActionResult> GetBook(int id)
         {
-            var book = await db.Books.FindAsync(id);
+            var book = await db.Books.Include(a => a.Author).Include(g => g.Genre).SingleOrDefaultAsync(b => b.Id == id);
             var dto = AutoMapper.Mapper.Map<BookDetailDTO>(book);
 
             if (dto == null)
@@ -38,6 +41,24 @@ namespace HomeBookLibrary.Controllers
 
             return Ok(dto);
         }
+
+        [HttpGet]
+        public IQueryable<BookDTO> BookFilter(int authorId, int titleId, int genreId, int isbn)
+        {
+            var books = db.Books.ProjectTo<BookDTO>();
+            var filteredBooks = books;
+            if (authorId > 0)
+                filteredBooks = filteredBooks.Where(x => x.AuthorId == authorId);
+            if (titleId > 0)
+                filteredBooks = filteredBooks.Where(x => x.Id == titleId);
+            if (genreId > 0)
+                filteredBooks = filteredBooks.Where(x => x.GenreId == genreId);
+            if (isbn > 0)
+                filteredBooks = filteredBooks.Where(x => x.Id == isbn);
+
+            return filteredBooks;
+        }
+
 
         // PUT: api/Books/5
         [ResponseType(typeof(void))]

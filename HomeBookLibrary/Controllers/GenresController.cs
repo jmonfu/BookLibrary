@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AutoMapper.QueryableExtensions;
 using HomeBookLibrary.Models;
 using HomeBookLibrary.Models.DTO;
 
@@ -21,7 +22,7 @@ namespace HomeBookLibrary.Controllers
         // GET: api/Genres
         public IQueryable<GenreDTO> GetGenres()
         {
-            return AutoMapper.Mapper.Map<IQueryable<GenreDTO>>(db.Genres);
+            return db.Genres.ProjectTo<GenreDTO>();
         }
 
         // GET: api/Genres/5

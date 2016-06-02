@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AutoMapper.QueryableExtensions;
 using HomeBookLibrary.Models;
 using HomeBookLibrary.Models.DTO;
 
@@ -20,7 +21,7 @@ namespace HomeBookLibrary.Controllers
         // GET: api/Loans
         public IQueryable<LoanDTO> GetLoans()
         {
-            return AutoMapper.Mapper.Map<IQueryable<LoanDTO>>(db.Loans);
+            return db.Loans.ProjectTo<LoanDTO>();
         }
 
         // GET: api/Loans/5
