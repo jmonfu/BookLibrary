@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
+﻿using System.ComponentModel.DataAnnotations;
 using HomeBookLibrary.DAL;
 
 namespace HomeBookLibrary.Models
 {
     public class Book : IEntityWithId
     {
-        public int Id { get; set; }
         [Required]
         public string Title { get; set; }
+
         public int ISBN { get; set; }
         public string Summary { get; set; }
         public bool IsAvailable { get; set; }
@@ -25,6 +21,6 @@ namespace HomeBookLibrary.Models
         public int GenreId { get; set; }
         // Navigation property
         public Genre Genre { get; set; }
-
+        public int Id { get; set; }
     }
 }

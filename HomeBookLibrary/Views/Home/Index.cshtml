@@ -8,27 +8,31 @@
     <div class="col-md-12">
         <div class="panel panel-default">
             <div class="panel-heading">
-                    <select id="authorMenu" name="" data-bind="options: authors,
+                <select id="authorMenu" name="" data-bind="options: authors,
                          optionsValue: 'Id',
                          optionsText: function(i) { return i.AuthorName},
                          optionsCaption: 'Authors...',
-                         value: selectedAuthor"></select>
-                <select id="titleMenu" name="" data-bind="options: books,
+                         value: selectedAuthor">
+                </select>
+                <select id="titleMenu" name="" data-bind="options: filteredBooks,
                          optionsValue: 'Id',
                          optionsText: function(i) { return i.BookTitle},
                          optionsCaption: 'Title...',
-                         value: selectedTitle"></select>
+                         value: selectedTitle">
+                </select>
                 <select id="genreMenu" name="" data-bind="options: genres,
                          optionsValue: 'Id',
                          optionsText: function(i) { return i.Type},
                          optionsCaption: 'Genre...',
-                         value: selectedGenre"></select>
+                         value: selectedGenre">
+                </select>
                 <select id="isbnMenu" name="" data-bind="options: books,
                          optionsValue: 'Id',
                          optionsText: function(i) { return i.ISBN},
                          optionsCaption: 'ISBN...',
-                         value: selectedIsbn"></select>
-                <input type="button" data-bind="click: doSearch" Value="Search" />
+                         value: selectedIsbn">
+                </select>
+                <input type="button" data-bind="click: doSearch" Value="Search"/>
             </div>
         </div>
     </div>
@@ -42,18 +46,27 @@
             <div class="panel-body">
                 <ul class="list-unstyled" data-bind="foreach: filteredBooks">
                     <li>
-                        <strong><span data-bind="text: AuthorName"></span></strong>:
+                        <strong>
+                            <span data-bind="text: AuthorName"></span></strong>:
                         <i>
                             <span data-bind="text: BookTitle"></span>
                         </i>
-                        <small><a href="#" data-bind="click: $parent.getBookDetail">Details</a></small>
-                        <small><a href="#" data-bind="click: $parent.loanBook, visible: IsAvailable">Loan Book</a></small>
+                        <small>
+                            <a href="#" data-bind="click: $parent.getBookDetail">Details</a>
+                        </small>
+                        <small>
+                            <a href="#" data-bind="click: $parent.loanBook, visible: IsAvailable">Loan Book</a>
+                        </small>
                     </li>
                 </ul>
             </div>
         </div>
-        <div class="alert alert-danger" data-bind="visible: error"><p data-bind="text: error"></p></div>
-        <div class="alert alert-success" data-bind="visible: message"><p data-bind="text: message"></p></div>
+        <div class="alert alert-danger" data-bind="visible: error">
+            <p data-bind="text: error"></p>
+        </div>
+        <div class="alert alert-success" data-bind="visible: message">
+            <p data-bind="text: message"></p>
+        </div>
     </div>
 
     <div class="col-md-6" data-bind="if: showing() === 'bookDetails'">
@@ -62,16 +75,34 @@
                 <h2 class="panel-title">Detail</h2>
             </div>
             <table class="table">
-                <tr><td>Author</td><td data-bind="text: bookDetail() && bookDetail().AuthorName"></td></tr>
-                <tr><td>Title</td><td data-bind="text: bookDetail() && bookDetail().BookTitle"></td></tr>
-                <tr><td>ISBN</td><td data-bind="text: bookDetail() && bookDetail().ISBN"></td></tr>
-                <tr><td>Is Available</td><td><input type="checkbox" value="cherry" data-bind="checked: bookDetail() && bookDetail().IsAvailable, enable: false"/></td></tr>
-                <tr><td>Genre</td><td data-bind="text: bookDetail() && bookDetail().GenreType"></td></tr>
-                <tr><td>Summary</td><td data-bind="text: bookDetail() && bookDetail().Summary"></td></tr>
+                <tr>
+                    <td>Author</td><td data-bind="text: bookDetail() && bookDetail().AuthorName"></td>
+                </tr>
+                <tr>
+                    <td>Title</td><td data-bind="text: bookDetail() && bookDetail().BookTitle"></td>
+                </tr>
+                <tr>
+                    <td>ISBN</td><td data-bind="text: bookDetail() && bookDetail().ISBN"></td>
+                </tr>
+                <tr>
+                    <td>Is Available</td><td>
+                        <input type="checkbox" value="cherry" data-bind="checked: bookDetail() && bookDetail().IsAvailable, enable: false"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Genre</td><td data-bind="text: bookDetail() && bookDetail().GenreType"></td>
+                </tr>
+                <tr>
+                    <td>Summary</td><td data-bind="text: bookDetail() && bookDetail().Summary"></td>
+                </tr>
             </table>
         </div>
-        <div class="alert alert-danger" data-bind="visible: error"><p data-bind="text: error"></p></div>
-        <div class="alert alert-success" data-bind="visible: message"><p data-bind="text: message"></p></div>
+        <div class="alert alert-danger" data-bind="visible: error">
+            <p data-bind="text: error"></p>
+        </div>
+        <div class="alert alert-success" data-bind="visible: message">
+            <p data-bind="text: message"></p>
+        </div>
     </div>
 
     <div class="col-md-6" data-bind="if: showing() === 'Loanees'">
@@ -83,7 +114,7 @@
             <div class="panel-body">
                 <form class="form-horizontal" data-bind="submit: loanBookSubmit">
                     <div class="form-group">
-                        <label for="bookTitle" class="col-sm-2 control-label" >Title</label> 
+                        <label for="bookTitle" class="col-sm-2 control-label">Title</label>
                         <div class="col-sm-10">
                             <label class="control-label" data-bind="text: bookDetail() && bookDetail().BookTitle"></label>
                         </div>
@@ -92,15 +123,15 @@
                     <div class="form-group" data-bind="with: newLoanBook">
                         <label for="inputName" class="col-sm-2 control-label">Name</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="inputName" data-bind="value:Name" />
+                            <input type="text" class="form-control" id="inputName" data-bind="value:Name"/>
                         </div>
                         <label for="inputSurname" class="col-sm-2 control-label">Surname</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="inputSurname" data-bind="value:Surname" />
+                            <input type="text" class="form-control" id="inputSurname" data-bind="value:Surname"/>
                         </div>
                         <label for="inputComments" class="col-sm-2 control-label">Comments</label>
                         <div class="col-sm-10">
-                            <textarea id="inputComments" class="form-control" data-bind="value:Comments" style="width:300px;height:150px;"></textarea>
+                            <textarea id="inputComments" class="form-control" data-bind="value:Comments" style="height: 150px; width: 300px;"></textarea>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-default">Submit</button>

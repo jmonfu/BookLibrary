@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Web;
+﻿using System.Data.Entity;
 
 namespace HomeBookLibrary.Models
 {
@@ -14,17 +10,17 @@ namespace HomeBookLibrary.Models
         // automatically whenever you change your model schema, please use data migrations.
         // For more information refer to the documentation:
         // http://msdn.microsoft.com/en-us/data/jj591621.aspx
-    
+
         public HomeBookLibraryContext() : base("name=HomeBookLibraryContext")
         {
         }
 
-        public System.Data.Entity.DbSet<HomeBookLibrary.Models.Author> Authors { get; set; }
+        public DbSet<Author> Authors { get; set; }
 
-        public System.Data.Entity.DbSet<HomeBookLibrary.Models.Book> Books { get; set; }
+        public DbSet<Book> Books { get; set; }
 
-        public System.Data.Entity.DbSet<HomeBookLibrary.Models.Genre> Genres { get; set; }
+        public DbSet<Genre> Genres { get; set; }
 
-        public System.Data.Entity.DbSet<HomeBookLibrary.Models.Loan> Loans { get; set; }
+        public DbSet<Loan> Loans { get; set; }
     }
 }

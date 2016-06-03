@@ -1,27 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using HomeBookLibrary.Models;
-using HomeBookLibrary.Models.DTO;
 
 namespace HomeBookLibrary.DAL
 {
     public class UnitOfWork : IDisposable, IUnitOfWork
     {
-        private HomeBookLibraryContext context = new HomeBookLibraryContext();
-        private GenericRepository<Book> _bookRepository;
         private GenericRepository<Author> _authoRepository;
-        private GenericRepository<Loan> _loanRepository;
+        private GenericRepository<Book> _bookRepository;
         private GenericRepository<Genre> _genreRepository;
+        private GenericRepository<Loan> _loanRepository;
+        private readonly HomeBookLibraryContext context = new HomeBookLibraryContext();
+
+        private bool disposed;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
         public GenericRepository<Book> BookRepository
         {
             get
             {
-                if (this._bookRepository == null)
+                if (_bookRepository == null)
                 {
-                    this._bookRepository = new GenericRepository<Book>(context);
+                    _bookRepository = new GenericRepository<Book>(context);
                 }
                 return _bookRepository;
             }
@@ -31,9 +35,9 @@ namespace HomeBookLibrary.DAL
         {
             get
             {
-                if (this._authoRepository == null)
+                if (_authoRepository == null)
                 {
-                    this._authoRepository = new GenericRepository<Author>(context);
+                    _authoRepository = new GenericRepository<Author>(context);
                 }
                 return _authoRepository;
             }
@@ -43,9 +47,9 @@ namespace HomeBookLibrary.DAL
         {
             get
             {
-                if (this._loanRepository == null)
+                if (_loanRepository == null)
                 {
-                    this._loanRepository = new GenericRepository<Loan>(context);
+                    _loanRepository = new GenericRepository<Loan>(context);
                 }
                 return _loanRepository;
             }
@@ -55,9 +59,9 @@ namespace HomeBookLibrary.DAL
         {
             get
             {
-                if (this._genreRepository == null)
+                if (_genreRepository == null)
                 {
-                    this._genreRepository = new GenericRepository<Genre>(context);
+                    _genreRepository = new GenericRepository<Genre>(context);
                 }
                 return _genreRepository;
             }
@@ -68,25 +72,16 @@ namespace HomeBookLibrary.DAL
             context.SaveChanges();
         }
 
-        private bool disposed = false;
-
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (!disposed)
             {
                 if (disposing)
                 {
                     context.Dispose();
                 }
             }
-            this.disposed = true;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            disposed = true;
         }
     }
-
 }

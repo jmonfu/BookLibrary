@@ -1,121 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using AutoMapper.QueryableExtensions;
 using HomeBookLibrary.DAL;
 using HomeBookLibrary.Models;
 using HomeBookLibrary.Models.DTO;
 
 namespace HomeBookLibrary.Controllers
 {
-    public class AuthorsController : ApiController
+    public class AuthorsController : BaseController
     {
-        private IUnitOfWork unitOfWork = new UnitOfWork();
+        private readonly IUnitOfWork unitOfWork = new UnitOfWork();
 
         // GET: api/Authors
         public IQueryable<AuthorDTO> GetAuthors()
         {
-            return unitOfWork.AuthorRepository.Get().ProjectTo<AuthorDTO>();
+            var authorDto = new AuthorDTO();
+            return GetAll(unitOfWork.AuthorRepository, authorDto);
         }
 
         // GET: api/Authors/5
-        [ResponseType(typeof(AuthorDTO))]
+        [ResponseType(typeof (AuthorDTO))]
         public async Task<IHttpActionResult> GetAuthor(int id)
         {
-            var author = await Task.Run(() => unitOfWork.AuthorRepository.GetById(id));
-            var dto = AutoMapper.Mapper.Map<AuthorDTO>(author);
-
-            if (dto == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(dto);
+            var authorDto = new AuthorDTO();
+            return await GetById(unitOfWork.AuthorRepository, authorDto, id);
         }
 
         // PUT: api/Authors/5
-        [ResponseType(typeof(void))]
+        [ResponseType(typeof (void))]
         public async Task<IHttpActionResult> PutAuthor(int id, Author author)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != author.Id)
-            {
-                return BadRequest();
-            }
-
-            unitOfWork.AuthorRepository.Update(author);
-
-            try
-            {
-                unitOfWork.Save();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AuthorExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return StatusCode(HttpStatusCode.NoContent);
+            return Put(unitOfWork.AuthorRepository, id, author);
         }
 
         // POST: api/Authors
-        [ResponseType(typeof(AuthorDTO))]
+        [ResponseType(typeof (AuthorDTO))]
         public IHttpActionResult PostAuthor(Author author)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            unitOfWork.AuthorRepository.Insert(author);
-            unitOfWork.Save();
-
-            var dto = AutoMapper.Mapper.Map<AuthorDTO>(author);
-
-            return CreatedAtRoute("DefaultApi", new { id = author.Id }, dto);
+            var authorDto = new AuthorDTO();
+            return Post(unitOfWork.AuthorRepository, authorDto, author);
         }
 
         // DELETE: api/Authors/5
-        [ResponseType(typeof(AuthorDTO))]
+        [ResponseType(typeof (AuthorDTO))]
         public async Task<IHttpActionResult> DeleteAuthor(int id)
         {
-            var author = await Task.Run(() => unitOfWork.AuthorRepository.GetById(id));
-
-            if (author == null)
-            {
-                return NotFound();
-            }
-
-            unitOfWork.AuthorRepository.Delete(id);
-            unitOfWork.Save(); 
-
-            var dto = AutoMapper.Mapper.Map<AuthorDTO>(author);
-
-            return Ok(dto);
+            var authorDto = new AuthorDTO();
+            return await Delete(unitOfWork.AuthorRepository, authorDto, id);
         }
-
-        private bool AuthorExists(int id)
-        {
-            return unitOfWork.AuthorRepository.GetById(id) != null;
-        }
-
     }
 }

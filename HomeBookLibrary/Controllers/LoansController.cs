@@ -1,83 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using AutoMapper.QueryableExtensions;
+using AutoMapper;
 using HomeBookLibrary.DAL;
 using HomeBookLibrary.Models;
 using HomeBookLibrary.Models.DTO;
 
 namespace HomeBookLibrary.Controllers
 {
-    public class LoansController : ApiController
+    public class LoansController : BaseController
     {
-        private IUnitOfWork unitOfWork = new UnitOfWork();
+        private readonly IUnitOfWork unitOfWork = new UnitOfWork();
 
         // GET: api/Loans
         public IQueryable<LoanDTO> GetLoans()
         {
-            return unitOfWork.LoanRepository.Get().ProjectTo<LoanDTO>();
+            var loanDto = new LoanDTO();
+            return GetAll(unitOfWork.LoanRepository, loanDto);
         }
 
         // GET: api/Loans/5
-        [ResponseType(typeof(LoanDetailsDTO))]
+        [ResponseType(typeof (LoanDetailsDTO))]
         public async Task<IHttpActionResult> GetLoan(int id)
         {
-            var loan = await Task.Run(() => unitOfWork.LoanRepository.GetById(id));
-            var dto = AutoMapper.Mapper.Map<LoanDetailsDTO>(loan);
-
-            if (dto == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(dto);
+            var loanDto = new LoanDTO();
+            return await GetById(unitOfWork.LoanRepository, loanDto, id);
         }
 
         // PUT: api/Loans/5
-        [ResponseType(typeof(void))]
+        [ResponseType(typeof (void))]
         public IHttpActionResult PutLoan(int id, Loan loan)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != loan.Id)
-            {
-                return BadRequest();
-            }
-
-            unitOfWork.LoanRepository.Update(loan);
-
-            try
-            {
-                unitOfWork.Save();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!LoanExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return StatusCode(HttpStatusCode.NoContent);
+            return Put(unitOfWork.LoanRepository, id, loan);
         }
 
         // POST: api/Loans
-        [ResponseType(typeof(LoanDTO))]
+        [ResponseType(typeof (LoanDTO))]
         public async Task<IHttpActionResult> PostLoan(Loan loan)
         {
             if (!ModelState.IsValid)
@@ -85,7 +44,7 @@ namespace HomeBookLibrary.Controllers
                 return BadRequest(ModelState);
             }
 
-            //also update the isAvailable parameter inside the book table
+            //also update the isAvailable parameter inside the book table            
             var book = await Task.Run(() => unitOfWork.BookRepository.GetById(loan.BookId));
 
             if (book != null)
@@ -96,12 +55,12 @@ namespace HomeBookLibrary.Controllers
             }
 
             unitOfWork.Save();
-            var dto = AutoMapper.Mapper.Map<LoanDTO>(loan);
-            return CreatedAtRoute("DefaultApi", new { id = loan.Id }, dto);
+            var dto = Mapper.Map<LoanDTO>(loan);
+            return CreatedAtRoute("DefaultApi", new {id = loan.Id}, dto);
         }
 
         // DELETE: api/Loans/5
-        [ResponseType(typeof(LoanDTO))]
+        [ResponseType(typeof (LoanDTO))]
         public async Task<IHttpActionResult> DeleteLoan(int id)
         {
             var loan = await Task.Run(() => unitOfWork.LoanRepository.GetById(id));
@@ -122,16 +81,9 @@ namespace HomeBookLibrary.Controllers
 
             unitOfWork.Save();
 
-            var dto = AutoMapper.Mapper.Map<LoanDTO>(loan);
+            var dto = Mapper.Map<LoanDTO>(loan);
 
             return Ok(dto);
         }
-
-        private bool LoanExists(int id)
-        {
-            return unitOfWork.LoanRepository.GetById(id) != null;
-        }
-
-
     }
 }

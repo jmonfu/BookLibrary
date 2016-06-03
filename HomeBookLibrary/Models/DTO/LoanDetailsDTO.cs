@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace HomeBookLibrary.Models.DTO
 {
@@ -12,6 +9,5 @@ namespace HomeBookLibrary.Models.DTO
         public string Surname { get; set; }
         public DateTime DateLoaned { get; set; }
         public string BookTitle { get; set; }
-
     }
 }

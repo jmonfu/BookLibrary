@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Web;
-using AutoMapper.QueryableExtensions;
 using HomeBookLibrary.Models;
-using HomeBookLibrary.Models.DTO;
 
 namespace HomeBookLibrary.DAL
 {
@@ -18,15 +13,15 @@ namespace HomeBookLibrary.DAL
         public GenericRepository(HomeBookLibraryContext context)
         {
             this.context = context;
-            this.dbSet = context.Set<TEntity>();
+            dbSet = context.Set<TEntity>();
         }
 
-        public IQueryable<TEntity> Get(string includeProperties="")
+        public IQueryable<TEntity> Get(string includeProperties = "")
         {
             IQueryable<TEntity> query = dbSet;
 
             foreach (var includeProperty in includeProperties.Split
-                (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                (new[] {','}, StringSplitOptions.RemoveEmptyEntries))
             {
                 query = query.Include(includeProperty);
             }
@@ -39,7 +34,7 @@ namespace HomeBookLibrary.DAL
             IQueryable<TEntity> query = dbSet;
 
             foreach (var includeProperty in includeProperties.Split
-                (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                (new[] {','}, StringSplitOptions.RemoveEmptyEntries))
             {
                 query = query.Include(includeProperty);
             }
@@ -54,7 +49,7 @@ namespace HomeBookLibrary.DAL
 
         public virtual void Delete(object id)
         {
-            TEntity entityToDelete = dbSet.Find(id);
+            var entityToDelete = dbSet.Find(id);
             Delete(entityToDelete);
         }
 

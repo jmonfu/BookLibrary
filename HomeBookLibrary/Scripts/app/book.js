@@ -1,10 +1,10 @@
-﻿var ViewModel = function () {
+﻿var ViewModel = function() {
     var self = this;
-    var booksUri = '/api/books/';
-    var authorsUri = '/api/authors/';
-    var genresUri = '/api/genres/';
-    var loansUri = '/api/loans/';
-    var currentDate = (new Date()).toISOString().split('T')[0];
+    var booksUri = "/api/books/";
+    var authorsUri = "/api/authors/";
+    var genresUri = "/api/genres/";
+    var loansUri = "/api/loans/";
+    var currentDate = (new Date()).toISOString().split("T")[0];
 
     self.books = ko.observableArray();
     self.error = ko.observable();
@@ -22,53 +22,52 @@
     self.message = ko.observable();
     self.loans = ko.observable();
 
-    self.show = function (panel) {
-        return (function () { self.showing(panel); });
-    }
-
+    self.show = function(panel) {
+        return (function() { self.showing(panel); });
+    };
     self.newLoanBook = {
-        Book : self.bookDetail,
+        Book: self.bookDetail,
         Title: ko.observable(),
-        DateLoaned: ko.observable(moment(currentDate).format('DD-MM-YYYY')),
+        DateLoaned: ko.observable(moment(currentDate).format("DD-MM-YYYY")),
         Name: ko.observable(),
         Surname: ko.observable(),
         Comments: ko.observable()
-    }
+    };
 
     function ajaxHelper(uri, method, data) {
-        self.error(''); // Clear error message
+        self.error(""); // Clear error message
         return $.ajax({
             type: method,
             url: uri,
-            dataType: 'json',
-            contentType: 'application/json',
+            dataType: "json",
+            contentType: "application/json",
             data: data ? JSON.stringify(data) : null
-        }).fail(function (jqXHR, textStatus, errorThrown) {
+        }).fail(function(jqXHR, textStatus, errorThrown) {
             self.error(errorThrown);
         });
     }
 
     function getAllBooks() {
-        ajaxHelper(booksUri, 'GET').done(function (data) {
+        ajaxHelper(booksUri, "GET").done(function(data) {
             self.filteredBooks(data);
-            self.showing('books');
+            self.showing("books");
         });
     }
 
     function getAllAuthors() {
-        ajaxHelper(authorsUri, 'GET').done(function (data) {
+        ajaxHelper(authorsUri, "GET").done(function(data) {
             self.authors(data);
         });
     }
 
     function getAllGenres() {
-        ajaxHelper(genresUri, 'GET').done(function (data) {
+        ajaxHelper(genresUri, "GET").done(function(data) {
             self.genres(data);
         });
     }
 
     function getAllLoans() {
-        ajaxHelper(loansUri, 'GET').done(function (data) {
+        ajaxHelper(loansUri, "GET").done(function(data) {
             console.log(data);
             self.loans(data);
         });
@@ -88,63 +87,59 @@
         return returnString;
     }
 
-    self.doSearch = function () {
+    self.doSearch = function() {
         var queryString = "";
         queryString += formatUrl(self.selectedAuthor());
         queryString += formatUrl(self.selectedTitle());
         queryString += formatUrl(self.selectedGenre());
         queryString += formatUrl(self.selectedIsbn());
 
-        ajaxHelper(booksUri + queryString, 'GET').done(function (data) {
+        ajaxHelper(booksUri + queryString, "GET").done(function(data) {
             self.filteredBooks(data);
-            self.showing('books');
-            self.message('');
+            self.showing("books");
+            self.message("");
         });
 
     };
 
-    self.getBookDetail = function (item) {
-        ajaxHelper(booksUri + item.Id, 'GET').done(function (data) {
+    self.getBookDetail = function(item) {
+        ajaxHelper(booksUri + item.Id, "GET").done(function(data) {
             self.bookDetail(data);
-            self.showing('bookDetails');
-            self.message('');
+            self.showing("bookDetails");
+            self.message("");
         });
-    }
-
-    self.loanBook = function (item) {
-        ajaxHelper(booksUri + item.Id, 'GET').done(function (data) {
+    };
+    self.loanBook = function(item) {
+        ajaxHelper(booksUri + item.Id, "GET").done(function(data) {
             self.loanedBook = data;
             self.bookDetail(data);
-            self.showing('Loanees');
-            self.message('');
+            self.showing("Loanees");
+            self.message("");
         });
-    }
-
-    self.loanBookSubmit = function (formElement) {
+    };
+    self.loanBookSubmit = function(formElement) {
         var loannee = {
             BookId: this.loanedBook.Id,
-            DateLoaned: moment(self.newLoanBook.DateLoaned()).format('DD-MM-YYYY'),
+            DateLoaned: moment(self.newLoanBook.DateLoaned()).format("DD-MM-YYYY"),
             Name: self.newLoanBook.Name(),
             Surname: self.newLoanBook.Surname(),
             Comments: self.newLoanBook.Comments()
         };
 
 
-        ajaxHelper(loansUri, 'POST', loannee).done(function (item) {
+        ajaxHelper(loansUri, "POST", loannee).done(function(item) {
             self.books.push(item);
             self.message("Loan Book Updated!");
             //self.filteredBooks();
             getAllBooks();
         });
-    }
-
-    self.returnBook = function (item) {
-        ajaxHelper(loansUri + item.Id, 'DELETE').done(function (data) {
+    };
+    self.returnBook = function(item) {
+        ajaxHelper(loansUri + item.Id, "DELETE").done(function(data) {
             getAllLoans();
-            self.message('Book Available again!');
+            self.message("Book Available again!");
         });
-    }
-
+    };
     getAllBooks();
     getAllAuthors();
     getAllGenres();

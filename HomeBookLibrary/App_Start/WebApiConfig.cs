@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Web.Http;
+﻿using System.Web.Http;
 using Microsoft.Owin.Security.OAuth;
-using Newtonsoft.Json.Serialization;
 
 namespace HomeBookLibrary
 {
@@ -20,17 +15,19 @@ namespace HomeBookLibrary
             // Web API routes
             config.MapHttpAttributeRoutes();
 
-            config.Routes.MapHttpRoute(
-                name: "DefaultApi",
-                routeTemplate: "api/{controller}/{id}",
-                defaults: new { id = RouteParameter.Optional }
-            );
+            config.Routes.MapHttpRoute("DefaultApi", "api/{controller}/{id}", new {id = RouteParameter.Optional}
+                );
 
-            config.Routes.MapHttpRoute(
-                name: "BookFilter",
-                routeTemplate: "api/books/{authorId}/{titleId}/{genreId}/{isbn}",
-                defaults: new { controller = "Books", action = "BookFilter", authorId = RouteParameter.Optional, titleId = RouteParameter.Optional, genreId = RouteParameter.Optional, isbn = RouteParameter.Optional });
-
+            config.Routes.MapHttpRoute("BookFilter", "api/books/{authorId}/{titleId}/{genreId}/{isbn}",
+                new
+                {
+                    controller = "Books",
+                    action = "BookFilter",
+                    authorId = RouteParameter.Optional,
+                    titleId = RouteParameter.Optional,
+                    genreId = RouteParameter.Optional,
+                    isbn = RouteParameter.Optional
+                });
         }
     }
 }

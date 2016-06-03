@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using HomeBookLibrary;
 using Microsoft.Owin;
 using Owin;
 
-[assembly: OwinStartup(typeof(HomeBookLibrary.Startup))]
+[assembly: OwinStartup(typeof (Startup))]
 
 namespace HomeBookLibrary
 {
