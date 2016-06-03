@@ -11,6 +11,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AttributeRouting.Web.Mvc;
 using AutoMapper.QueryableExtensions;
+using HomeBookLibrary.DAL;
 using HomeBookLibrary.Models;
 using HomeBookLibrary.Models.DTO;
 
@@ -18,12 +19,12 @@ namespace HomeBookLibrary.Controllers
 {
     public class BooksController : ApiController
     {
-        private HomeBookLibraryContext db = new HomeBookLibraryContext();
+        private IUnitOfWork unitOfWork = new UnitOfWork();
 
         // GET: api/Books
         public IQueryable<BookDTO> GetBooks()
         {
-            return db.Books.ProjectTo<BookDTO>();
+            return unitOfWork.BookRepository.Get().ProjectTo<BookDTO>();
         }
 
 
@@ -31,10 +32,15 @@ namespace HomeBookLibrary.Controllers
         [ResponseType(typeof(BookDetailDTO))]
         public async Task<IHttpActionResult> GetBook(int id)
         {
-            var book = await db.Books.Include(a => a.Author).Include(g => g.Genre).SingleOrDefaultAsync(b => b.Id == id);
-            var dto = AutoMapper.Mapper.Map<BookDetailDTO>(book);
+            var book = await Task.Run(() => unitOfWork.BookRepository.GetById(id, includeProperties:"Author,Genre"));
 
-            if (dto == null)
+            BookDetailDTO dto = null;
+
+            if (book != null)
+            {
+                dto = AutoMapper.Mapper.Map<BookDetailDTO>(book);
+            }
+            else
             {
                 return NotFound();
             }
@@ -45,7 +51,7 @@ namespace HomeBookLibrary.Controllers
         [HttpGet]
         public IQueryable<BookDTO> BookFilter(int authorId, int titleId, int genreId, int isbn)
         {
-            var books = db.Books.ProjectTo<BookDTO>();
+            var books = unitOfWork.BookRepository.Get();
             var filteredBooks = books;
             if (authorId > 0)
                 filteredBooks = filteredBooks.Where(x => x.AuthorId == authorId);
@@ -56,13 +62,13 @@ namespace HomeBookLibrary.Controllers
             if (isbn > 0)
                 filteredBooks = filteredBooks.Where(x => x.Id == isbn);
 
-            return filteredBooks;
+            return filteredBooks.ProjectTo<BookDTO>();
         }
 
 
         // PUT: api/Books/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> PutBook(int id, Book book)
+        public IHttpActionResult PutBook(int id, Book book)
         {
             if (!ModelState.IsValid)
             {
@@ -74,11 +80,11 @@ namespace HomeBookLibrary.Controllers
                 return BadRequest();
             }
 
-            db.Entry(book).State = EntityState.Modified;
+            unitOfWork.BookRepository.Update(book);
 
             try
             {
-                await db.SaveChangesAsync();
+                unitOfWork.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -97,15 +103,15 @@ namespace HomeBookLibrary.Controllers
 
         // POST: api/Books
         [ResponseType(typeof(BookDTO))]
-        public async Task<IHttpActionResult> PostBook(Book book)
+        public IHttpActionResult PostBook(Book book)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.Books.Add(book);
-            await db.SaveChangesAsync();
+            unitOfWork.BookRepository.Insert(book);
+            unitOfWork.Save();
 
             var dto = AutoMapper.Mapper.Map<BookDTO>(book);
 
@@ -116,32 +122,23 @@ namespace HomeBookLibrary.Controllers
         [ResponseType(typeof(BookDTO))]
         public async Task<IHttpActionResult> DeleteBook(int id)
         {
-            var book = await db.Books.FindAsync(id);
+            var book = await Task.Run(() => unitOfWork.BookRepository.GetById(id));
             if (book == null)
             {
                 return NotFound();
             }
 
-            db.Books.Remove(book);
-            await db.SaveChangesAsync();
+            unitOfWork.BookRepository.Delete(id);
+            unitOfWork.Save();
 
             var dto = AutoMapper.Mapper.Map<BookDTO>(book);
 
             return Ok(dto);
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
         private bool BookExists(int id)
         {
-            return db.Books.Count(e => e.Id == id) > 0;
+            return unitOfWork.BookRepository.GetById(id) != null;
         }
     }
 }

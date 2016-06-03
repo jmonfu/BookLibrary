@@ -34,7 +34,7 @@
     </div>
 
 
-    <div class="col-md-4" data-bind="if: showing() === 'books' || showing() === 'bookDetails' || showing() === 'Loanees'">
+    <div class="col-md-6" data-bind="if: showing() === 'books' || showing() === 'bookDetails' || showing() === 'Loanees'">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h2 class="panel-title">Books</h2>
@@ -56,7 +56,7 @@
         <div class="alert alert-success" data-bind="visible: message"><p data-bind="text: message"></p></div>
     </div>
 
-    <div class="col-md-8" data-bind="if: showing() === 'bookDetails'">
+    <div class="col-md-6" data-bind="if: showing() === 'bookDetails'">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h2 class="panel-title">Detail</h2>
@@ -74,7 +74,7 @@
         <div class="alert alert-success" data-bind="visible: message"><p data-bind="text: message"></p></div>
     </div>
 
-    <div class="col-md-8" data-bind="if: showing() === 'Loanees'">
+    <div class="col-md-6" data-bind="if: showing() === 'Loanees'">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h2 class="panel-title">Loan Book</h2>

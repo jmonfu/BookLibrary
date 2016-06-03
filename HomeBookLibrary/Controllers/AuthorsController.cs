@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AutoMapper.QueryableExtensions;
+using HomeBookLibrary.DAL;
 using HomeBookLibrary.Models;
 using HomeBookLibrary.Models.DTO;
 
@@ -17,19 +18,19 @@ namespace HomeBookLibrary.Controllers
 {
     public class AuthorsController : ApiController
     {
-        private HomeBookLibraryContext db = new HomeBookLibraryContext();
+        private IUnitOfWork unitOfWork = new UnitOfWork();
 
         // GET: api/Authors
         public IQueryable<AuthorDTO> GetAuthors()
         {
-            return db.Authors.ProjectTo<AuthorDTO>();
+            return unitOfWork.AuthorRepository.Get().ProjectTo<AuthorDTO>();
         }
 
         // GET: api/Authors/5
         [ResponseType(typeof(AuthorDTO))]
         public async Task<IHttpActionResult> GetAuthor(int id)
         {
-            var author = await db.Authors.FindAsync(id);
+            var author = await Task.Run(() => unitOfWork.AuthorRepository.GetById(id));
             var dto = AutoMapper.Mapper.Map<AuthorDTO>(author);
 
             if (dto == null)
@@ -54,11 +55,11 @@ namespace HomeBookLibrary.Controllers
                 return BadRequest();
             }
 
-            db.Entry(author).State = EntityState.Modified;
+            unitOfWork.AuthorRepository.Update(author);
 
             try
             {
-                await db.SaveChangesAsync();
+                unitOfWork.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -77,15 +78,15 @@ namespace HomeBookLibrary.Controllers
 
         // POST: api/Authors
         [ResponseType(typeof(AuthorDTO))]
-        public async Task<IHttpActionResult> PostAuthor(Author author)
+        public IHttpActionResult PostAuthor(Author author)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.Authors.Add(author);
-            await db.SaveChangesAsync();
+            unitOfWork.AuthorRepository.Insert(author);
+            unitOfWork.Save();
 
             var dto = AutoMapper.Mapper.Map<AuthorDTO>(author);
 
@@ -96,32 +97,25 @@ namespace HomeBookLibrary.Controllers
         [ResponseType(typeof(AuthorDTO))]
         public async Task<IHttpActionResult> DeleteAuthor(int id)
         {
-            var author = await db.Authors.FindAsync(id);
+            var author = await Task.Run(() => unitOfWork.AuthorRepository.GetById(id));
+
             if (author == null)
             {
                 return NotFound();
             }
 
-            db.Authors.Remove(author);
-            await db.SaveChangesAsync();
+            unitOfWork.AuthorRepository.Delete(id);
+            unitOfWork.Save(); 
 
             var dto = AutoMapper.Mapper.Map<AuthorDTO>(author);
 
             return Ok(dto);
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
         private bool AuthorExists(int id)
         {
-            return db.Authors.Count(e => e.Id == id) > 0;
+            return unitOfWork.AuthorRepository.GetById(id) != null;
         }
+
     }
 }

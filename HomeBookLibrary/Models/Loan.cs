@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
+using HomeBookLibrary.DAL;
 using Microsoft.SqlServer.Server;
 
 namespace HomeBookLibrary.Models
 {
-    public class Loan
+    public class Loan : IEntityWithId
     {
         public int Id { get; set; }
         [Required]

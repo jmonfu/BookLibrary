@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AutoMapper.QueryableExtensions;
+using HomeBookLibrary.DAL;
 using HomeBookLibrary.Models;
 using HomeBookLibrary.Models.DTO;
 
@@ -17,19 +18,19 @@ namespace HomeBookLibrary.Controllers
 {
     public class GenresController : ApiController
     {
-        private HomeBookLibraryContext db = new HomeBookLibraryContext();
+        private IUnitOfWork unitOfWork = new UnitOfWork();
 
         // GET: api/Genres
         public IQueryable<GenreDTO> GetGenres()
         {
-            return db.Genres.ProjectTo<GenreDTO>();
+            return unitOfWork.GenreRepository.Get().ProjectTo<GenreDTO>();
         }
 
         // GET: api/Genres/5
         [ResponseType(typeof(GenreDTO))]
         public async Task<IHttpActionResult> GetGenre(int id)
         {
-            var genre = await db.Genres.FindAsync(id);
+            var genre = await Task.Run(() => unitOfWork.GenreRepository.GetById(id));
             var dto = AutoMapper.Mapper.Map<GenreDTO>(genre);
 
             if (dto == null)
@@ -42,7 +43,7 @@ namespace HomeBookLibrary.Controllers
 
         // PUT: api/Genres/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> PutGenre(int id, Genre genre)
+        public IHttpActionResult PutGenre(int id, Genre genre)
         {
             if (!ModelState.IsValid)
             {
@@ -54,11 +55,11 @@ namespace HomeBookLibrary.Controllers
                 return BadRequest();
             }
 
-            db.Entry(genre).State = EntityState.Modified;
+            unitOfWork.GenreRepository.Update(genre);
 
             try
             {
-                await db.SaveChangesAsync();
+                unitOfWork.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -77,15 +78,15 @@ namespace HomeBookLibrary.Controllers
 
         // POST: api/Genres
         [ResponseType(typeof(GenreDTO))]
-        public async Task<IHttpActionResult> PostGenre(Genre genre)
+        public IHttpActionResult PostGenre(Genre genre)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.Genres.Add(genre);
-            await db.SaveChangesAsync();
+            unitOfWork.GenreRepository.Insert(genre);
+            unitOfWork.Save();
 
             var dto = AutoMapper.Mapper.Map<AuthorDTO>(genre);
 
@@ -96,33 +97,25 @@ namespace HomeBookLibrary.Controllers
         [ResponseType(typeof(GenreDTO))]
         public async Task<IHttpActionResult> DeleteGenre(int id)
         {
-            var genre = await db.Genres.FindAsync(id);
+            var genre = await Task.Run(() => unitOfWork.GenreRepository.GetById(id));
 
             if (genre == null)
             {
                 return NotFound();
             }
 
-            db.Genres.Remove(genre);
-            await db.SaveChangesAsync();
+            unitOfWork.GenreRepository.Delete(id);
+            unitOfWork.Save();
 
             var dto = AutoMapper.Mapper.Map<AuthorDTO>(genre);
 
             return Ok(dto);
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
         private bool GenreExists(int id)
         {
-            return db.Genres.Count(e => e.Id == id) > 0;
+            return unitOfWork.GenreRepository.GetById(id) != null;
         }
+
     }
 }

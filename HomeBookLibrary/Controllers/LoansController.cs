@@ -6,9 +6,11 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AutoMapper.QueryableExtensions;
+using HomeBookLibrary.DAL;
 using HomeBookLibrary.Models;
 using HomeBookLibrary.Models.DTO;
 
@@ -16,19 +18,19 @@ namespace HomeBookLibrary.Controllers
 {
     public class LoansController : ApiController
     {
-        private HomeBookLibraryContext db = new HomeBookLibraryContext();
+        private IUnitOfWork unitOfWork = new UnitOfWork();
 
         // GET: api/Loans
         public IQueryable<LoanDTO> GetLoans()
         {
-            return db.Loans.ProjectTo<LoanDTO>();
+            return unitOfWork.LoanRepository.Get().ProjectTo<LoanDTO>();
         }
 
         // GET: api/Loans/5
         [ResponseType(typeof(LoanDetailsDTO))]
-        public IHttpActionResult GetLoan(int id)
+        public async Task<IHttpActionResult> GetLoan(int id)
         {
-            var loan = db.Loans.Find(id);
+            var loan = await Task.Run(() => unitOfWork.LoanRepository.GetById(id));
             var dto = AutoMapper.Mapper.Map<LoanDetailsDTO>(loan);
 
             if (dto == null)
@@ -53,11 +55,11 @@ namespace HomeBookLibrary.Controllers
                 return BadRequest();
             }
 
-            db.Entry(loan).State = EntityState.Modified;
+            unitOfWork.LoanRepository.Update(loan);
 
             try
             {
-                db.SaveChanges();
+                unitOfWork.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -76,7 +78,7 @@ namespace HomeBookLibrary.Controllers
 
         // POST: api/Loans
         [ResponseType(typeof(LoanDTO))]
-        public IHttpActionResult PostLoan(Loan loan)
+        public async Task<IHttpActionResult> PostLoan(Loan loan)
         {
             if (!ModelState.IsValid)
             {
@@ -84,61 +86,52 @@ namespace HomeBookLibrary.Controllers
             }
 
             //also update the isAvailable parameter inside the book table
-            var book = db.Books.FirstOrDefault(x => x.Id == loan.BookId);
+            var book = await Task.Run(() => unitOfWork.BookRepository.GetById(loan.BookId));
+
             if (book != null)
             {
                 book.IsAvailable = false;
-
-                db.Loans.Add(loan);
-                db.Entry(book).State = EntityState.Modified;
+                unitOfWork.BookRepository.Update(book);
+                unitOfWork.LoanRepository.Insert(loan);
             }
 
-            db.SaveChanges();
-
+            unitOfWork.Save();
             var dto = AutoMapper.Mapper.Map<LoanDTO>(loan);
-
             return CreatedAtRoute("DefaultApi", new { id = loan.Id }, dto);
         }
 
         // DELETE: api/Loans/5
         [ResponseType(typeof(LoanDTO))]
-        public IHttpActionResult DeleteLoan(int id)
+        public async Task<IHttpActionResult> DeleteLoan(int id)
         {
-            var loan = db.Loans.Find(id);
+            var loan = await Task.Run(() => unitOfWork.LoanRepository.GetById(id));
+
             if (loan == null)
             {
                 return NotFound();
             }
 
             //set the book back to available
-            var book = db.Books.FirstOrDefault(x => x.Id == loan.BookId);
+            var book = await Task.Run(() => unitOfWork.BookRepository.GetById(loan.BookId));
             if (book != null)
             {
                 book.IsAvailable = true;
-
-                db.Loans.Remove(loan);
-                db.Entry(book).State = EntityState.Modified;
+                unitOfWork.BookRepository.Update(book);
+                unitOfWork.LoanRepository.Delete(id);
             }
 
-            db.SaveChanges();
+            unitOfWork.Save();
 
             var dto = AutoMapper.Mapper.Map<LoanDTO>(loan);
 
             return Ok(dto);
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
         private bool LoanExists(int id)
         {
-            return db.Loans.Count(e => e.Id == id) > 0;
+            return unitOfWork.LoanRepository.GetById(id) != null;
         }
+
+
     }
 }
