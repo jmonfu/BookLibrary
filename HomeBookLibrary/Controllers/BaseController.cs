@@ -11,98 +11,103 @@ namespace HomeBookLibrary.Controllers
 {
     public class BaseController : ApiController
     {
-        private readonly IUnitOfWork unitOfWork = new UnitOfWork();
+        protected IUnitOfWork UnitOfWork;
 
-        protected IQueryable<TDto> GetAll<T, TDto>(GenericRepository<T> repository, TDto dto)
-            where T : class, IEntityWithId
+        protected BaseController()
         {
-            return repository.Get().ProjectTo<TDto>();
+            UnitOfWork = new UnitOfWork();
         }
 
-        protected async Task<IHttpActionResult> GetById<T, TDetailDto>(GenericRepository<T> repository,
-            TDetailDto tDetailDto, int id, string includeProperties = "")
-            where T : class, IEntityWithId
-        {
-            var item = await Task.Run(() => repository.GetById(id, includeProperties));
+        //protected virtual IQueryable<TDto> GetAll<T, TDto>(GenericRepository<T> repository, TDto dto)
+        //    where T : class, IEntityWithId
+        //{
+        //    return repository.Get().ProjectTo<TDto>();
+        //}
 
-            TDetailDto dtoDetail;
+        //protected async Task<IHttpActionResult> GetById<T, TDetailDto>(GenericRepository<T> repository,
+        //    TDetailDto tDetailDto, int id, string includeProperties = "")
+        //    where T : class, IEntityWithId
+        //{
+        //    var item = await Task.Run(() => repository.GetById(id, includeProperties));
 
-            if (item != null)
-            {
-                dtoDetail = Mapper.Map<TDetailDto>(item);
-            }
-            else
-            {
-                return NotFound();
-            }
+        //    TDetailDto dtoDetail;
 
-            return Ok(dtoDetail);
-        }
+        //    if (item != null)
+        //    {
+        //        dtoDetail = Mapper.Map<TDetailDto>(item);
+        //    }
+        //    else
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return Ok(dtoDetail);
+        //}
 
 
-        protected IHttpActionResult Put<T>(GenericRepository<T> repository, int id, T entity)
-            where T : class, IEntityWithId
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //protected IHttpActionResult Put<T>(GenericRepository<T> repository, int id, T entity)
+        //    where T : class, IEntityWithId
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            if (id != entity.Id)
-            {
-                return BadRequest();
-            }
+        //    if (id != entity.Id)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            repository.Update(entity);
+        //    repository.Update(entity);
 
-            try
-            {
-                unitOfWork.Save();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (repository.GetById(id) == null)
-                {
-                    return NotFound();
-                }
-                throw;
-            }
+        //    try
+        //    {
+        //        UnitOfWork.Save();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (repository.GetById(id) == null)
+        //        {
+        //            return NotFound();
+        //        }
+        //        throw;
+        //    }
 
-            return StatusCode(HttpStatusCode.NoContent);
-        }
+        //    return StatusCode(HttpStatusCode.NoContent);
+        //}
 
-        protected IHttpActionResult Post<T, TDto>(GenericRepository<T> repository, TDto dto, T entity)
-            where T : class, IEntityWithId
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //protected IHttpActionResult Post<T, TDto>(GenericRepository<T> repository, TDto dto, T entity)
+        //    where T : class, IEntityWithId
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            repository.Insert(entity);
-            unitOfWork.Save();
+        //    repository.Insert(entity);
+        //    UnitOfWork.Save();
 
-            var outputDto = Mapper.Map<TDto>(entity);
+        //    var outputDto = Mapper.Map<TDto>(entity);
 
-            return CreatedAtRoute("DefaultApi", new {id = entity.Id}, outputDto);
-        }
+        //    return CreatedAtRoute("DefaultApi", new {id = entity.Id}, outputDto);
+        //}
 
-        protected async Task<IHttpActionResult> Delete<T, TDto>(GenericRepository<T> repository,
-            TDto tDto, int id)
-            where T : class, IEntityWithId
-        {
-            var item = await Task.Run(() => repository.GetById(id));
-            if (item == null)
-            {
-                return NotFound();
-            }
+        //protected async Task<IHttpActionResult> Delete<T, TDto>(GenericRepository<T> repository,
+        //    TDto tDto, int id)
+        //    where T : class, IEntityWithId
+        //{
+        //    var item = await Task.Run(() => repository.GetById(id));
+        //    if (item == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            repository.Delete(id);
-            unitOfWork.Save();
+        //    repository.Delete(id);
+        //    UnitOfWork.Save();
 
-            var dto = Mapper.Map<TDto>(item);
+        //    var dto = Mapper.Map<TDto>(item);
 
-            return Ok(dto);
-        }
+        //    return Ok(dto);
+        //}
     }
 }

@@ -220,10 +220,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\AttributeRoutingConfig.cs" />
+    <Compile Include="App_Start\AuthorMappings.cs" />
     <Compile Include="App_Start\AutoMapperConfig.cs" />
+    <Compile Include="App_Start\BookMappings.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\GenreMappings.cs" />
     <Compile Include="App_Start\IdentityConfig.cs" />
+    <Compile Include="App_Start\LoanMappings.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
@@ -263,10 +267,18 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LoansController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="DAL\AuthorsRepository.cs" />
+    <Compile Include="DAL\BooksRepository.cs" />
     <Compile Include="DAL\GenericRepository.cs" />
+    <Compile Include="DAL\GenresRepository.cs" />
+    <Compile Include="DAL\IAuthorsRepository.cs" />
+    <Compile Include="DAL\IBooksRepository.cs" />
     <Compile Include="DAL\IEntityWithId.cs" />
     <Compile Include="DAL\IGenericRepository.cs" />
+    <Compile Include="DAL\IGenresRepository.cs" />
+    <Compile Include="DAL\ILoansRepository.cs" />
     <Compile Include="DAL\IUnitOfWork.cs" />
+    <Compile Include="DAL\LoansRepository.cs" />
     <Compile Include="DAL\UnitOfWork.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

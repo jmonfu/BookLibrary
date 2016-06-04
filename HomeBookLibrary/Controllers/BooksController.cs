@@ -1,7 +1,10 @@
-﻿using System.Linq;
+﻿using System.Data.Entity.Infrastructure;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using HomeBookLibrary.DAL;
 using HomeBookLibrary.Models;
@@ -11,13 +14,21 @@ namespace HomeBookLibrary.Controllers
 {
     public class BooksController : BaseController
     {
-        private readonly IUnitOfWork unitOfWork = new UnitOfWork();
+        private BooksRepository _bookRepository = new BooksRepository();
+
+        public BooksController()
+        {
+        }
+
+        public BooksController(IUnitOfWork unitOfWork)
+        {
+            UnitOfWork = unitOfWork;
+        }
 
         // GET: api/Books
         public IQueryable<BookDTO> GetBooks()
         {
-            var bookDto = new BookDTO();
-            return GetAll(unitOfWork.BookRepository, bookDto);
+            return _bookRepository.GetBooks("").ProjectTo<BookDTO>();
         }
 
 
@@ -26,14 +37,26 @@ namespace HomeBookLibrary.Controllers
         public async Task<IHttpActionResult> GetBook(int id)
         {
             var includeProperties = "Author,Genre";
-            var bookDetailDto = new BookDetailDTO();
-            return await GetById(unitOfWork.BookRepository, bookDetailDto, id, includeProperties);
+            var item = await Task.Run(() => _bookRepository.GetBookById(id, includeProperties));
+
+            BookDetailDTO dtoDetail;
+
+            if (item != null)
+            {
+                dtoDetail = Mapper.Map<BookDetailDTO>(item);
+            }
+            else
+            {
+                return NotFound();
+            }
+
+            return Ok(dtoDetail);
         }
 
         [HttpGet]
         public IQueryable<BookDTO> BookFilter(int authorId, int titleId, int genreId, int isbn)
         {
-            var books = unitOfWork.BookRepository.Get();
+            var books = UnitOfWork.BookRepository.GetBooks();
             var filteredBooks = books;
             if (authorId > 0)
                 filteredBooks = filteredBooks.Where(x => x.AuthorId == authorId);
@@ -49,26 +72,70 @@ namespace HomeBookLibrary.Controllers
 
 
         // PUT: api/Books/5
-        [ResponseType(typeof (void))]
+        [ResponseType(typeof(void))]
         public IHttpActionResult PutBook(int id, Book book)
         {
-            return Put(unitOfWork.BookRepository, id, book);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != book.Id)
+            {
+                return BadRequest();
+            }
+
+            _bookRepository.Update(book);
+
+            try
+            {
+                UnitOfWork.Save();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (_bookRepository.GetBookById(id) == null)
+                {
+                    return NotFound();
+                }
+                throw;
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/Books
-        [ResponseType(typeof (BookDTO))]
+        [ResponseType(typeof(BookDTO))]
         public IHttpActionResult PostBook(Book book)
         {
-            var bookDto = new BookDTO();
-            return Post(unitOfWork.BookRepository, bookDto, book);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _bookRepository.Insert(book);
+            UnitOfWork.Save();
+
+            var outputDto = Mapper.Map<BookDTO>(book);
+
+            return CreatedAtRoute("DefaultApi", new { id = book.Id }, outputDto);
         }
 
         // DELETE: api/Books/5
-        [ResponseType(typeof (BookDTO))]
+        [ResponseType(typeof(BookDTO))]
         public async Task<IHttpActionResult> DeleteBook(int id)
         {
-            var bookDto = new BookDTO();
-            return await Delete(unitOfWork.BookRepository, bookDto, id);
+            var item = await Task.Run(() => _bookRepository.GetBookById(id));
+            if (item == null)
+            {
+                return NotFound();
+            }
+
+            _bookRepository.Delete(id);
+            UnitOfWork.Save();
+
+            var dto = Mapper.Map<BookDTO>(item);
+
+            return Ok(dto);
         }
     }
 }

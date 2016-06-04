@@ -5,13 +5,18 @@ namespace HomeBookLibrary.DAL
 {
     public class UnitOfWork : IDisposable, IUnitOfWork
     {
-        private GenericRepository<Author> _authoRepository;
-        private GenericRepository<Book> _bookRepository;
-        private GenericRepository<Genre> _genreRepository;
-        private GenericRepository<Loan> _loanRepository;
-        private readonly HomeBookLibraryContext context = new HomeBookLibraryContext();
+        private BooksRepository _booksRepository;
+        private LoansRepository _loansRepository;
+        private AuthorsRepository _authorsRepository;
+        private GenresRepository _genresRepository;
 
-        private bool disposed;
+        //private GenericRepository<Author> _authoRepository;
+        //private GenericRepository<Book> _bookRepository;
+        //private GenericRepository<Genre> _genreRepository;
+        //private GenericRepository<Loan> _loanRepository;
+        private readonly HomeBookLibraryContext _context = new HomeBookLibraryContext();
+
+        private bool _disposed;
 
         public void Dispose()
         {
@@ -19,69 +24,123 @@ namespace HomeBookLibrary.DAL
             GC.SuppressFinalize(this);
         }
 
-        public GenericRepository<Book> BookRepository
+        public BooksRepository BookRepository
         {
             get
             {
-                if (_bookRepository == null)
+                if (_booksRepository == null)
                 {
-                    _bookRepository = new GenericRepository<Book>(context);
+                    _booksRepository = new BooksRepository();
                 }
-                return _bookRepository;
+                return _booksRepository;
             }
+
         }
 
-        public GenericRepository<Author> AuthorRepository
+        public AuthorsRepository AuthorsRepository
         {
             get
             {
-                if (_authoRepository == null)
+                if (_authorsRepository == null)
                 {
-                    _authoRepository = new GenericRepository<Author>(context);
+                    _authorsRepository = new AuthorsRepository();
                 }
-                return _authoRepository;
+                return _authorsRepository;
             }
+
         }
 
-        public GenericRepository<Loan> LoanRepository
+        public GenresRepository GenresRepository
         {
             get
             {
-                if (_loanRepository == null)
+                if (_genresRepository == null)
                 {
-                    _loanRepository = new GenericRepository<Loan>(context);
+                    _genresRepository = new GenresRepository();
                 }
-                return _loanRepository;
+                return _genresRepository;
             }
+
         }
 
-        public GenericRepository<Genre> GenreRepository
+        public LoansRepository LoansRepository
         {
             get
             {
-                if (_genreRepository == null)
+                if (_loansRepository == null)
                 {
-                    _genreRepository = new GenericRepository<Genre>(context);
+                    _loansRepository = new LoansRepository();
                 }
-                return _genreRepository;
+                return _loansRepository;
             }
+
         }
+
+        //public GenericRepository<Book> BookRepository
+        //{
+        //    get
+        //    {
+        //        if (_bookRepository == null)
+        //        {
+        //            _bookRepository = new GenericRepository<Book>(_context);
+        //        }
+        //        return _bookRepository;
+        //    }
+        //}
+
+        //public GenericRepository<Author> AuthorRepository
+        //{
+        //    get
+        //    {
+        //        if (_authoRepository == null)
+        //        {
+        //            _authoRepository = new GenericRepository<Author>(_context);
+        //        }
+        //        return _authoRepository;
+        //    }
+        //}
+
+        //public GenericRepository<Loan> LoanRepository
+        //{
+        //    get
+        //    {
+        //        if (_loanRepository == null)
+        //        {
+        //            _loanRepository = new GenericRepository<Loan>(_context);
+        //        }
+        //        return _loanRepository;
+        //    }
+        //}
+
+        //public GenericRepository<Genre> GenreRepository
+        //{
+        //    get
+        //    {
+        //        if (_genreRepository == null)
+        //        {
+        //            _genreRepository = new GenericRepository<Genre>(_context);
+        //        }
+        //        return _genreRepository;
+        //    }
+        //}
+
 
         public void Save()
         {
-            context.SaveChanges();
+            _context.SaveChanges();
         }
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (!_disposed)
             {
                 if (disposing)
                 {
-                    context.Dispose();
+                    _context.Dispose();
                 }
             }
-            disposed = true;
+            _disposed = true;
         }
     }
+
 }
