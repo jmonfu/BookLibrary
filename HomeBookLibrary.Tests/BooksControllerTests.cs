@@ -17,14 +17,15 @@ namespace HomeBookLibrary.Tests
     public class BooksControllerTests
     {
         private Mock<IUnitOfWork> _unitOfWorkMock;
+        private Mock<IBooksRepository> _booksRepositoryMock;
         BooksController objController;
         List<Book> books = new List<Book>();
 
         [SetUp]
         public void Setup()
         {
-            _unitOfWorkMock = new Mock<IUnitOfWork>();
-            objController = new BooksController(_unitOfWorkMock.Object);
+            _booksRepositoryMock = new Mock<IBooksRepository>();
+            objController = new BooksController(_booksRepositoryMock.Object);
             books = new List<Book>()
             {
                 new Book {Id = 1, Title = "Hamlet", ISBN = 1853260096, AuthorId = 1, GenreId = 1, IsAvailable = true, Summary = "Hamlet is not only one of Shakespeare's greatest plays, but also the most fascinatingly problematical tragedy. "},
@@ -49,12 +50,9 @@ namespace HomeBookLibrary.Tests
         public void Get_Post_Should_Get_All_Books()
         {
             // Arrange
-            //_countryServiceMock.Setup(x => x.GetAll()).Returns(listCountry);
-            _unitOfWorkMock.Setup(x => x.BookRepository.GetBooks("")).Returns(books.AsQueryable());
-            //_unitOfWorkMock.Setup(x => x.BookRepository.Get("")).Returns(books.AsQueryable());
+            _booksRepositoryMock.Setup(x => x.GetBooks("")).Returns(books.AsQueryable());
 
             // Act
-            //var result = ((objController.Index() as ViewResult).Model) as List<Country>;
             var result = objController.GetBooks().ToList();
 
             // Assert

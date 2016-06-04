@@ -14,15 +14,17 @@ namespace HomeBookLibrary.Controllers
 {
     public class BooksController : BaseController
     {
-        private BooksRepository _bookRepository = new BooksRepository();
+        readonly IBooksRepository _bookRepository;
 
         public BooksController()
         {
+            _bookRepository = new BooksRepository();
         }
 
-        public BooksController(IUnitOfWork unitOfWork)
+        public BooksController(IBooksRepository booksRepository)
         {
-            UnitOfWork = unitOfWork;
+            //UnitOfWork = unitOfWork;
+            _bookRepository = booksRepository;
         }
 
         // GET: api/Books
