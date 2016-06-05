@@ -25,7 +25,7 @@ namespace HomeBookLibrary.Tests
         public void Setup()
         {
             _booksRepositoryMock = new Mock<IBooksRepository>();
-            objController = new BooksController(_booksRepositoryMock.Object);
+            objController = new BooksController(_unitOfWorkMock.Object);
             books = new List<Book>()
             {
                 new Book {Id = 1, Title = "Hamlet", ISBN = 1853260096, AuthorId = 1, GenreId = 1, IsAvailable = true, Summary = "Hamlet is not only one of Shakespeare's greatest plays, but also the most fascinatingly problematical tragedy. "},

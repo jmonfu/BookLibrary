@@ -14,10 +14,11 @@ namespace HomeBookLibrary.Controllers
 {
     public class AuthorsController : BaseController
     {
-        private AuthorsRepository _authorsRepository = new AuthorsRepository();
+        private IUnitOfWork UnitOfWork;
 
         public AuthorsController()
         {
+            UnitOfWork = new UnitOfWork();
         }
 
         public AuthorsController(IUnitOfWork unitOfWork)
@@ -28,14 +29,14 @@ namespace HomeBookLibrary.Controllers
         // GET: api/Authors
         public IQueryable<AuthorDTO> GetAuthors()
         {
-            return _authorsRepository.GetAuthors("").ProjectTo<AuthorDTO>();
+            return UnitOfWork.AuthorsRepository.GetAuthors("").ProjectTo<AuthorDTO>();
         }
 
         // GET: api/Authors/5
         [ResponseType(typeof (AuthorDTO))]
         public async Task<IHttpActionResult> GetAuthor(int id)
         {
-            var item = await Task.Run(() => _authorsRepository.GetAuthorById(id));
+            var item = await Task.Run(() => UnitOfWork.AuthorsRepository.GetAuthorById(id));
 
             AuthorDTO dtoDetail;
 
@@ -65,7 +66,7 @@ namespace HomeBookLibrary.Controllers
                 return BadRequest();
             }
 
-            _authorsRepository.Update(author);
+            UnitOfWork.AuthorsRepository.Update(author);
 
             try
             {
@@ -73,7 +74,7 @@ namespace HomeBookLibrary.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (_authorsRepository.GetAuthorById(id) == null)
+                if (UnitOfWork.AuthorsRepository.GetAuthorById(id) == null)
                 {
                     return NotFound();
                 }
@@ -92,7 +93,7 @@ namespace HomeBookLibrary.Controllers
                 return BadRequest(ModelState);
             }
 
-            _authorsRepository.Insert(author);
+            UnitOfWork.AuthorsRepository.Insert(author);
             UnitOfWork.Save();
 
             var outputDto = Mapper.Map<AuthorDTO>(author);
@@ -104,13 +105,13 @@ namespace HomeBookLibrary.Controllers
         [ResponseType(typeof (AuthorDTO))]
         public async Task<IHttpActionResult> DeleteAuthor(int id)
         {
-            var item = await Task.Run(() => _authorsRepository.GetAuthorById(id));
+            var item = await Task.Run(() => UnitOfWork.AuthorsRepository.GetAuthorById(id));
             if (item == null)
             {
                 return NotFound();
             }
 
-            _authorsRepository.Delete(id);
+            UnitOfWork.AuthorsRepository.Delete(id);
             UnitOfWork.Save();
 
             var dto = Mapper.Map<BookDTO>(item);

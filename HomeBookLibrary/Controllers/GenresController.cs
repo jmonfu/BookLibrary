@@ -14,10 +14,11 @@ namespace HomeBookLibrary.Controllers
 {
     public class GenresController : BaseController
     {
-        private GenresRepository _genresRepository = new GenresRepository();
+        private IUnitOfWork UnitOfWork;
 
         public GenresController()
         {
+            UnitOfWork = new UnitOfWork();
         }
 
         public GenresController(IUnitOfWork unitOfWork)
@@ -28,14 +29,14 @@ namespace HomeBookLibrary.Controllers
         // GET: api/Genres
         public IQueryable<GenreDTO> GetGenres()
         {
-            return _genresRepository.GetGenres("").ProjectTo<GenreDTO>();
+            return UnitOfWork.GenresRepository.GetGenres("").ProjectTo<GenreDTO>();
         }
 
         // GET: api/Genres/5
         [ResponseType(typeof (GenreDTO))]
         public async Task<IHttpActionResult> GetGenre(int id)
         {
-            var item = await Task.Run(() => _genresRepository.GetGenreById(id));
+            var item = await Task.Run(() => UnitOfWork.GenresRepository.GetGenreById(id));
 
             GenreDTO dtoDetail;
 
@@ -65,7 +66,7 @@ namespace HomeBookLibrary.Controllers
                 return BadRequest();
             }
 
-            _genresRepository.Update(genre);
+            UnitOfWork.GenresRepository.Update(genre);
 
             try
             {
@@ -73,7 +74,7 @@ namespace HomeBookLibrary.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (_genresRepository.GetGenreById(id) == null)
+                if (UnitOfWork.GenresRepository.GetGenreById(id) == null)
                 {
                     return NotFound();
                 }
@@ -92,7 +93,7 @@ namespace HomeBookLibrary.Controllers
                 return BadRequest(ModelState);
             }
 
-            _genresRepository.Insert(genre);
+            UnitOfWork.GenresRepository.Insert(genre);
             UnitOfWork.Save();
 
             var outputDto = Mapper.Map<GenreDTO>(genre);
@@ -104,13 +105,13 @@ namespace HomeBookLibrary.Controllers
         [ResponseType(typeof (GenreDTO))]
         public async Task<IHttpActionResult> DeleteGenre(int id)
         {
-            var item = await Task.Run(() => _genresRepository.GetGenreById(id));
+            var item = await Task.Run(() => UnitOfWork.GenresRepository.GetGenreById(id));
             if (item == null)
             {
                 return NotFound();
             }
 
-            _genresRepository.Delete(id);
+            UnitOfWork.GenresRepository.Delete(id);
             UnitOfWork.Save();
 
             var dto = Mapper.Map<BookDTO>(item);

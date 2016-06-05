@@ -9,11 +9,12 @@ namespace HomeBookLibrary.DAL
 {
     public class BooksRepository : IBooksRepository
     {
-        internal HomeBookLibraryContext context = new HomeBookLibraryContext();
+        internal HomeBookLibraryContext Context = new HomeBookLibraryContext();
         internal DbSet<Book> dbSet;
 
-        public BooksRepository()
+        public BooksRepository(HomeBookLibraryContext context)
         {
+            Context = context;
             dbSet = context.Set<Book>();
         }
 
@@ -47,7 +48,7 @@ namespace HomeBookLibrary.DAL
         public virtual void Insert(Book entity)
         {
             dbSet.Add(entity);
-            context.SaveChanges();
+            Context.SaveChanges();
         }
 
         public virtual void Delete(int id)
@@ -58,19 +59,19 @@ namespace HomeBookLibrary.DAL
 
         public virtual void Delete(Book entityToDelete)
         {
-            if (context.Entry(entityToDelete).State == EntityState.Detached)
+            if (Context.Entry(entityToDelete).State == EntityState.Detached)
             {
                 dbSet.Attach(entityToDelete);
             }
             dbSet.Remove(entityToDelete);
-            context.SaveChanges();
+            Context.SaveChanges();
         }
 
         public virtual void Update(Book entityToUpdate)
         {
             dbSet.Attach(entityToUpdate);
-            context.Entry(entityToUpdate).State = EntityState.Modified;
-            context.SaveChanges();
+            Context.Entry(entityToUpdate).State = EntityState.Modified;
+            Context.SaveChanges();
         }
 
     }

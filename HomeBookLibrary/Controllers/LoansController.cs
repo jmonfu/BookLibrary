@@ -14,11 +14,11 @@ namespace HomeBookLibrary.Controllers
 {
     public class LoansController : BaseController
     {
-        private LoansRepository _loansRepository = new LoansRepository();
-        private BooksRepository _booksRepository = new BooksRepository();
+        private IUnitOfWork UnitOfWork;
 
         public LoansController()
         {
+            UnitOfWork = new UnitOfWork();
         }
 
         public LoansController(IUnitOfWork unitOfWork)
@@ -29,14 +29,14 @@ namespace HomeBookLibrary.Controllers
         // GET: api/Loans
         public IQueryable<LoanDTO> GetLoans()
         {
-            return _loansRepository.GetLoans("").ProjectTo<LoanDTO>();
+            return UnitOfWork.LoansRepository.GetLoans("").ProjectTo<LoanDTO>();
         }
 
         // GET: api/Loans/5
         [ResponseType(typeof (LoanDetailsDTO))]
         public async Task<IHttpActionResult> GetLoan(int id)
         {
-            var item = await Task.Run(() => _loansRepository.GetLoanById(id));
+            var item = await Task.Run(() => UnitOfWork.LoansRepository.GetLoanById(id));
 
             LoanDetailsDTO dtoDetail;
 
@@ -66,7 +66,7 @@ namespace HomeBookLibrary.Controllers
                 return BadRequest();
             }
 
-            _loansRepository.Update(loan);
+            UnitOfWork.LoansRepository.Update(loan);
 
             try
             {
@@ -74,7 +74,7 @@ namespace HomeBookLibrary.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (_loansRepository.GetLoanById(id) == null)
+                if (UnitOfWork.LoansRepository.GetLoanById(id) == null)
                 {
                     return NotFound();
                 }
@@ -85,7 +85,7 @@ namespace HomeBookLibrary.Controllers
         }
 
         // POST: api/Loans
-        [ResponseType(typeof (LoanDTO))]
+        [ResponseType(typeof(LoanDTO))]
         public async Task<IHttpActionResult> PostLoan(Loan loan)
         {
             if (!ModelState.IsValid)
@@ -94,24 +94,24 @@ namespace HomeBookLibrary.Controllers
             }
 
             //also update the isAvailable parameter inside the book table            
-            var book = await Task.Run(() => _booksRepository.GetBookById(loan.BookId));
+            var book = await Task.Run(() => UnitOfWork.BookRepository.GetBookById(loan.BookId));
 
             if (book != null)
             {
                 book.IsAvailable = false;
-                _booksRepository.Update(book);
-                _loansRepository.Insert(loan);
+                UnitOfWork.BookRepository.Update(book);
+                UnitOfWork.LoansRepository.Insert(loan);
             }
 
             var dto = Mapper.Map<LoanDTO>(loan);
-            return CreatedAtRoute("DefaultApi", new {id = loan.Id}, dto);
+            return CreatedAtRoute("DefaultApi", new { id = loan.Id }, dto);
         }
 
         // DELETE: api/Loans/5
-        [ResponseType(typeof (LoanDTO))]
+        [ResponseType(typeof(LoanDTO))]
         public async Task<IHttpActionResult> DeleteLoan(int id)
         {
-            var loan = await Task.Run(() => _loansRepository.GetLoanById(id));
+            var loan = await Task.Run(() => UnitOfWork.LoansRepository.GetLoanById(id));
 
             if (loan == null)
             {
@@ -119,12 +119,12 @@ namespace HomeBookLibrary.Controllers
             }
 
             //set the book back to available
-            var book = await Task.Run(() => _booksRepository.GetBookById(loan.BookId));
+            var book = await Task.Run(() => UnitOfWork.BookRepository.GetBookById(loan.BookId));
             if (book != null)
             {
                 book.IsAvailable = true;
-                _booksRepository.Update(book);
-                _loansRepository.Delete(id);
+                UnitOfWork.BookRepository.Update(book);
+                UnitOfWork.LoansRepository.Delete(id);
             }
 
             var dto = Mapper.Map<LoanDTO>(loan);

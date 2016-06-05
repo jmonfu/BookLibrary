@@ -14,32 +14,31 @@ namespace HomeBookLibrary.Controllers
 {
     public class BooksController : BaseController
     {
-        readonly IBooksRepository _bookRepository;
+        private IUnitOfWork UnitOfWork;
 
         public BooksController()
         {
-            _bookRepository = new BooksRepository();
+            UnitOfWork = new UnitOfWork();
         }
 
-        public BooksController(IBooksRepository booksRepository)
+        public BooksController(IUnitOfWork unitOfWork)
         {
-            //UnitOfWork = unitOfWork;
-            _bookRepository = booksRepository;
+            UnitOfWork = unitOfWork;
         }
 
         // GET: api/Books
         public IQueryable<BookDTO> GetBooks()
         {
-            return _bookRepository.GetBooks("").ProjectTo<BookDTO>();
+            return UnitOfWork.BookRepository.GetBooks("").ProjectTo<BookDTO>();
         }
 
 
-        // GET: api/Books/5
-        [ResponseType(typeof (BookDetailDTO))]
+        //GET: api/Books/5
+        [ResponseType(typeof(BookDetailDTO))]
         public async Task<IHttpActionResult> GetBook(int id)
         {
             var includeProperties = "Author,Genre";
-            var item = await Task.Run(() => _bookRepository.GetBookById(id, includeProperties));
+            var item = await Task.Run(() => UnitOfWork.BookRepository.GetBookById(id, includeProperties));
 
             BookDetailDTO dtoDetail;
 
@@ -87,7 +86,7 @@ namespace HomeBookLibrary.Controllers
                 return BadRequest();
             }
 
-            _bookRepository.Update(book);
+            UnitOfWork.BookRepository.Update(book);
 
             try
             {
@@ -95,14 +94,14 @@ namespace HomeBookLibrary.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (_bookRepository.GetBookById(id) == null)
+                if (UnitOfWork.BookRepository.GetBookById(id) == null)
                 {
                     return NotFound();
                 }
                 throw;
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+                return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/Books
@@ -114,7 +113,7 @@ namespace HomeBookLibrary.Controllers
                 return BadRequest(ModelState);
             }
 
-            _bookRepository.Insert(book);
+            UnitOfWork.BookRepository.Insert(book);
             UnitOfWork.Save();
 
             var outputDto = Mapper.Map<BookDTO>(book);
@@ -126,13 +125,13 @@ namespace HomeBookLibrary.Controllers
         [ResponseType(typeof(BookDTO))]
         public async Task<IHttpActionResult> DeleteBook(int id)
         {
-            var item = await Task.Run(() => _bookRepository.GetBookById(id));
+            var item = await Task.Run(() => UnitOfWork.BookRepository.GetBookById(id));
             if (item == null)
             {
                 return NotFound();
             }
 
-            _bookRepository.Delete(id);
+            UnitOfWork.BookRepository.Delete(id);
             UnitOfWork.Save();
 
             var dto = Mapper.Map<BookDTO>(item);

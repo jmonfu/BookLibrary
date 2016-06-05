@@ -4,14 +4,10 @@ namespace HomeBookLibrary.DAL
 {
     public interface IUnitOfWork
     {
-        BooksRepository BookRepository { get; }
-        AuthorsRepository AuthorsRepository { get; }
-        GenresRepository GenresRepository { get; }
-        LoansRepository LoansRepository { get; }
-        //GenericRepository<Author> AuthorRepository { get; }
-        //GenericRepository<Book> BookRepository { get; }
-        //GenericRepository<Loan> LoanRepository { get; }
-        //GenericRepository<Genre> GenreRepository { get; }
+        IBooksRepository BookRepository { get; }
+        IAuthorsRepository AuthorsRepository { get; }
+        IGenresRepository GenresRepository { get; }
+        ILoansRepository LoansRepository { get; }
         void Save();
         void Dispose();
     }

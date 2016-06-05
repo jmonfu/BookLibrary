@@ -9,11 +9,12 @@ namespace HomeBookLibrary.DAL
 {
     public class LoansRepository : ILoansRepository
     {
-        internal HomeBookLibraryContext context = new HomeBookLibraryContext();
+        internal HomeBookLibraryContext Context = new HomeBookLibraryContext();
         internal DbSet<Loan> dbSet;
 
-        public LoansRepository()
+        public LoansRepository(HomeBookLibraryContext context)
         {
+            Context = context;
             dbSet = context.Set<Loan>();
         }
 
@@ -46,7 +47,7 @@ namespace HomeBookLibrary.DAL
         public void Insert(Loan entity)
         {
             dbSet.Add(entity);
-            context.SaveChanges();
+            Context.SaveChanges();
         }
 
         public void Delete(int id)
@@ -57,19 +58,19 @@ namespace HomeBookLibrary.DAL
 
         public void Delete(Loan entityToDelete)
         {
-            if (context.Entry(entityToDelete).State == EntityState.Detached)
+            if (Context.Entry(entityToDelete).State == EntityState.Detached)
             {
                 dbSet.Attach(entityToDelete);
             }
             dbSet.Remove(entityToDelete);
-            context.SaveChanges();
+            Context.SaveChanges();
         }
 
         public void Update(Loan entityToUpdate)
         {
             dbSet.Attach(entityToUpdate);
-            context.Entry(entityToUpdate).State = EntityState.Modified;
-            context.SaveChanges();
+            Context.Entry(entityToUpdate).State = EntityState.Modified;
+            Context.SaveChanges();
         }
     }
 }
